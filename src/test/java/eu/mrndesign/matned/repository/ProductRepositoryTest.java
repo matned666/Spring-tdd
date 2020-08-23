@@ -63,17 +63,18 @@ class ProductRepositoryTest {
         //then
         Assertions.assertNotNull(savedProduct, "Product should be saved");
         Assertions.assertNotNull(savedProduct.getId(), "Product Id should NOT be null");
-        Assertions.assertNotNull(savedProduct.getName() == expectedProduct.getName(), "Product Id should NOT be null");
+        Assertions.assertEquals(expectedProduct.getName(), savedProduct.getName(), "Product names should equal");
     }
 
     @Test
     @DisplayName("Testing if prod updated successfully")
     public  void  testProductCanBeUpdated() throws IOException {
         //given
-
+        Product productToUpdate = new Product(1L , "Updated product", "Description", 2, 1);
         //when
-
+        Product updatedProduct = productRepository.save(productToUpdate);
         //then
+        Assertions.assertEquals(productToUpdate.getName(), updatedProduct.getName(), "Should be the same names in both products");
 
     }
 
