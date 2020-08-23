@@ -2,10 +2,7 @@ package eu.mrndesign.matned.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.mrndesign.matned.model.Product;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 
 @ExtendWith({SpringExtension.class})
 @SpringBootTest
@@ -29,6 +27,11 @@ class ProductRepositoryTest {
         Product[] prods = new ObjectMapper().readValue(dataJson, Product[].class);
 
         Arrays.stream(prods).forEach(productRepository::save);
+    }
+
+    @AfterEach
+    public void clear(){
+        productRepository.deleteAll();
     }
 
     @Test
@@ -77,5 +80,21 @@ class ProductRepositoryTest {
         Assertions.assertEquals(productToUpdate.getName(), updatedProduct.getName(), "Should be the same names in both products");
 
     }
+
+    @Test
+    @DisplayName("Testing if finds all products")
+    public  void  testProductsListFound() throws IOException {
+        //given
+        Product product1 = new Product(1L , "product1", "Description", 2, 1);
+        Product product2 = new Product(2L , "product2", "Description", 2, 1);
+        Product product3 = new Product(3L , "product3", "Description", 2, 1);
+        Arrays.asList(product1, product2, product3).forEach(productRepository::save);
+        //when
+        Iterable<Product> prodList = productRepository.findAll();
+        //then
+        Assertions.assertEquals(((Collection<?>)prodList).size(), 3, "size should be 3");
+    }
+
+
 
 }
