@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith({SpringExtension.class})
 @SpringBootTest
@@ -26,9 +27,12 @@ class ProductServiceTest {
     @DisplayName("Finding one product by id")
     public void findOneProductById(){
 //        Given
-        Product mockProd =
+        Product mockProd = new Product(1L, "Name", "Description", 2,1);
+        doReturn(mockProd).when(productRepository).findProductById(1L);
 //        When
+        Product foundProd = productService.findById(1L);
 //        Then
+        assertNotNull(foundProd);
     }
 
 }
