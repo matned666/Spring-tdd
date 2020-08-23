@@ -10,29 +10,30 @@ import javax.persistence.Id;
 
 //@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Data
 @ToString
 @Entity
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String name;
     private String description;
-    private int quantity;
-    private int version;
+    private Integer quantity;
+    private Integer version;
 
     public Product() {
     }
 
-    public Product(String name, String description, int quantity, int version) {
+    public Product(String name, String description, Integer quantity, Integer version) {
         this.name = name;
         this.description = description;
         this.quantity = quantity;
         this.version = version;
     }
 
-    public Product(int id, String name, String description, int quantity, int version) {
+    public Product(Long id, String name, String description, Integer quantity, Integer version) {
         this.id = id;
         this.name = name;
         this.description = description;
