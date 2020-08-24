@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @ExtendWith({SpringExtension.class})
 @SpringBootTest
@@ -21,19 +23,20 @@ class ProductRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
 
+    File DATA_JSON = Paths.get("src", "test", "resources", "products.json").toFile();
     @BeforeEach
-    public void setUp() throws IOException {
-        File dataJson = Paths.get("src", "test", "resources","products.json").toFile();
-        Product[] prods = new ObjectMapper().readValue(dataJson, Product[].class);
-
-        Arrays.stream(prods).forEach(productRepository::save);
+    public void setup() throws IOException {
+        // Deserialize products from JSON file to Product array
+        Product[] products = new ObjectMapper().readValue(DATA_JSON, Product[].class);
+        // Save each product to database
+        Arrays.stream(products).forEach(productRepository::save);
     }
 
     @AfterEach
-    public void clear(){
+    public void cleanup(){
+        // Cleanup the database after each test
         productRepository.deleteAll();
     }
-
     @Test
     @DisplayName("Testing if not existing product is null")
     public  void  testProductNotFoundIsNull() throws IOException {
@@ -49,9 +52,10 @@ class ProductRepositoryTest {
     @DisplayName("Testing if existing product is ok")
     public  void  testProductNotFoundIsCorrect() throws IOException {
         //given
-
+        List<Product> list = (List<Product>) productRepository.findAll();
+        Long idToCheck = list.get(list.size()-1).getId();
         //when
-        Product obtainedProduct = productRepository.findProductById(1L);
+        Product obtainedProduct = productRepository.findProductById(idToCheck);
         //then
         Assertions.assertNotNull(obtainedProduct);
     }
@@ -85,14 +89,24 @@ class ProductRepositoryTest {
     @DisplayName("Testing if finds all products")
     public  void  testProductsListFound() throws IOException {
         //given
-        Product product1 = new Product(1L , "product1", "Description", 2, 1);
-        Product product2 = new Product(2L , "product2", "Description", 2, 1);
-        Product product3 = new Product(3L , "product3", "Description", 2, 1);
-        Arrays.asList(product1, product2, product3).forEach(productRepository::save);
         //when
         Iterable<Product> prodList = productRepository.findAll();
         //then
-        Assertions.assertEquals(((Collection<?>)prodList).size(), 3, "size should be 3");
+        Assertions.assertEquals(((Collection<?>)prodList).size(), 2, "size should be 3");
+    }
+
+
+    @Test
+    @DisplayName("Testing delete product")
+    public void testProductsDelete() throws IOException {
+        //given
+        Product product = productRepository.findById(1L).orElse(null);
+        Assertions.assertNotNull(product, "should NOT be null");
+        productRepository.deleteById(1L);
+        //when
+        product = productRepository.findById(1L).orElse(null);
+        //then
+        Assertions.assertNull(product, "should be null");
     }
 
 
