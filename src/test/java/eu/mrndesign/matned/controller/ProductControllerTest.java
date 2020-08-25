@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -47,6 +48,7 @@ class ProductControllerTest {
         }
     }
 
+    @WithMockUser(value = "admin")
     @Test
     @DisplayName("GET /product/1 test - product found 200")
     public void testGETProdFnd() throws Exception {
@@ -60,6 +62,18 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.id", is(1)));
     }
 
+    @WithMockUser(value = "admin")
+    @Test
+    @DisplayName("GET /product/100 test - product not found 404")
+    public void testGETProdNOTFnd() throws Exception {
+
+        doReturn(null).when(productService).findById(100);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/product/{id}", 100))
+                .andExpect(status().isNotFound());
+    }
+
+    @WithMockUser(value = "admin")
     @Test
     @DisplayName("GET /product/1 test - products found 200")
     public void testGETProdsFnd() throws Exception {
@@ -78,6 +92,7 @@ class ProductControllerTest {
 
     }
 
+    @WithMockUser(value = "admin")
     @Test
     @DisplayName("POST /product test - posted product status 202")
     public void testPostProductOk() throws Exception {
@@ -94,6 +109,7 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.id", is(1)));
     }
 
+    @WithMockUser(value = "admin")
     @Test
     @DisplayName("DELETE /product/1 test - products found 200")
     public void testDeleteProd() throws Exception {
@@ -103,6 +119,7 @@ class ProductControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(value = "admin")
     @Test
     @DisplayName("DELETE /product/122 test - product not found 404")
     public void testDeleteNotExistingProd() throws Exception {
@@ -113,8 +130,9 @@ class ProductControllerTest {
     }
 
 
+    @WithMockUser(value = "admin")
     @Test
-    @DisplayName("DELETE /product/1 test - product not found 404")
+    @DisplayName("PUT /product/1 test - product found 200")
     public void testPutProd() throws Exception {
         Product mockedProduct1 = new Product(1L, "Name1", "Desc", 2, 1);
         doReturn(mockedProduct1).when(productService).update(1L, mockedProduct1);
@@ -126,8 +144,9 @@ class ProductControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @WithMockUser(value = "admin")
     @Test
-    @DisplayName("Put /product/1 test - product not found 404")
+    @DisplayName("PUT /product/1 test - product not found 404")
     public void testPutNotFoundProd() throws Exception {
         Product mockedProduct1 = new Product();
         doReturn(null).when(productService).update(1L, mockedProduct1);
